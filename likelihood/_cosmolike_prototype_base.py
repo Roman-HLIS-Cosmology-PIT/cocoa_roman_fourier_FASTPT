@@ -15,7 +15,7 @@ from getdist import IniFile
 import euclidemu2 as ee2
 import math
 
-import cosmolike_roman_fourier_interface as ci
+import cosmolike_roman_fourier_FASTPT_interface as ci
 
 survey = "roman"
 
@@ -62,6 +62,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
     else:
       ci.set_log_level_info()
 
+    # JX: use what emulator?
     if self.use_emulator:
       ci.init_redshift_distributions_from_files(
           lens_multihisto_file=self.lens_file,
@@ -73,6 +74,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       
       ci.init_accuracy_boost(accuracy_boost=0.35, 
                              integration_accuracy=-1) # seems enough to compute PM
+    # traditional CoCoA initialization
     else:
       ci.init_accuracy_boost(accuracy_boost=self.accuracyboost, 
                              integration_accuracy=int(self.integration_accuracy))
@@ -98,6 +100,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
 
       ci.init_data_fourier(self.cov_file, self.mask_file, self.data_vector_file)
 
+      # JX: might need to change init_IA?
       ci.init_IA(ia_model = int(self.IA_model), 
                  ia_redshift_evolution = int(self.IA_redshift_evolution))
      
@@ -184,7 +187,9 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         }, # in Mpc
         "Cl": { # DONT REMOVE THIS - SOME WEIRD BEHAVIOR IN CAMB WITHOUT WANTS_CL
           'tt': 0
-        }
+        },
+        # JX: get requirements of what for FAST-PT wrapper? 
+        "IA_PS": None,
       }
 
   # ------------------------------------------------------------------------
@@ -199,6 +204,11 @@ class _cosmolike_prototype_base(DataSetLikelihood):
                                                extrap_kmax=2.5e2*self.accuracyboost)
       lnPL = PKL.logP(self.z_interp_2D,
                       np.power(10.0,self.log10k_interp_2D)).flatten(order='F')+np.log(h**3)
+      
+      self.log.info(f'Calling FAST-PT to get IA-related power spectrum')
+      self.IA = self.provider.get_IA_PS()
+      self.log.info(f'{len(self.IA)} IA perturbation terms returned')
+      self.log.info(f'Each IA term has shape of {self.IA[0].shape}')
 
       if self.non_linear_emul == 1:
         params = {

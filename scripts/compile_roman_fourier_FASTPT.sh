@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
-if [ -z "${IGNORE_COSMOLIKE_ROMAN_FOURIER_CODE}" ]; then
+if [ -z "${IGNORE_COSMOLIKE_ROMAN_FOURIER_FASTPT_CODE}" ]; then
 
   if [ -z "${ROOTDIR}" ]; then
     source start_cocoa.sh || { pfail 'ROOTDIR'; return 1; }
@@ -57,12 +57,12 @@ if [ -z "${IGNORE_COSMOLIKE_ROMAN_FOURIER_CODE}" ]; then
 
   PROJECT="${ROOTDIR:?}/projects"
 
-  FOLDER="${ROMAN_FOURIER_NAME:-"roman_fourier"}"
+  FOLDER="${ROMAN_FOURIER_FASTPT_NAME:-"roman_fourier_FASTPT"}"
 
   PACKDIR="${PROJECT:?}/${FOLDER:?}"
 
   # Name to be printed on this shell script messages
-  PRINTNAME="ROMAN_FOURIER"
+  PRINTNAME="ROMAN_FOURIER_FASTPT"
 
   ptop "COMPILING ${PRINTNAME:?}" || return 1
 

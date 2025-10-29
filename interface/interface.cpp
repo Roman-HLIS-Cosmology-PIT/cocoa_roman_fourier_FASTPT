@@ -39,9 +39,9 @@ namespace py = pybind11;
 #include "cosmolike/generic_interface.hpp"
 #include "cosmolike/cosmo2D_wrapper.hpp"
 
-PYBIND11_MODULE(cosmolike_roman_fourier_interface, m)
+PYBIND11_MODULE(cosmolike_roman_fourier_FASTPT_interface, m)
 {
-  m.doc() = "CosmoLike Interface for Roman-Y1 Fourier Space 3x2pt Module";
+  m.doc() = "CosmoLike Interface for Roman-Y1 Fourier Space 3x2pt Module with FASTPT support";
 
   // --------------------------------------------------------------------
   // INIT FUNCTIONS
@@ -146,6 +146,7 @@ PYBIND11_MODULE(cosmolike_roman_fourier_interface, m)
          arma::Col<double> io_z_2D, 
          arma::Col<double> io_lnP_linear,
          arma::Col<double> io_lnP_nonlinear,
+         //arma::Col<double> io_lnP_IA,
          arma::Col<double> io_G,
          arma::Col<double> io_z_1D,
          arma::Col<double> io_chi)
@@ -166,6 +167,7 @@ PYBIND11_MODULE(cosmolike_roman_fourier_interface, m)
        py::arg("z_2D").none(false),
        py::arg("lnP_linear").none(false),
        py::arg("lnP_nonlinear").none(false),
+       //py::arg("lnP_IA").none(false),
        py::arg("G").none(false),
        py::arg("z_1D").none(false),
        py::arg("chi").none(false),

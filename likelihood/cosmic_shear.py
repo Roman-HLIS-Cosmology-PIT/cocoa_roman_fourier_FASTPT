@@ -1,6 +1,6 @@
-from cobaya.likelihoods.roman_fourier._cosmolike_prototype_base import _cosmolike_prototype_base
-import cosmolike_roman_fourier_interface as ci
-import numpy as np
+from cobaya.likelihoods.roman_fourier_FASTPT._cosmolike_prototype_base import _cosmolike_prototype_base
+#import cosmolike_roman_fourier_FASTPT_interface as ci
+#import numpy as np
 
 class cosmic_shear(_cosmolike_prototype_base):
   def initialize(self):
