@@ -101,7 +101,8 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       ci.init_data_fourier(self.cov_file, self.mask_file, self.data_vector_file)
 
       # JX: might need to change init_IA?
-      ci.init_IA(ia_model = int(self.IA_model), 
+      if (int(self.IA_model)==0) or (int(self.IA_code)==0):
+        ci.init_IA(ia_model = int(self.IA_model), 
                  ia_redshift_evolution = int(self.IA_redshift_evolution))
      
       if self.probe != "xi":
@@ -245,7 +246,10 @@ class _cosmolike_prototype_base(DataSetLikelihood):
 
       G_growth = np.sqrt(PKL.P(self.z_interp_2D,0.0005)/PKL.P(0,0.0005))*(1+self.z_interp_2D)
       G_growth /= G_growth[-1]
-
+      if int(self.IA_code)==1:
+        self.IA_PS = self.provider.get_IA_PS()
+        print(self.IA_PS)
+        ci.set_IA_PS(self.IA_PS.flatten(order='C'))
       ci.set_cosmology(
         omegam=self.provider.get_param("omegam"),
         H0=self.provider.get_param("H0"),

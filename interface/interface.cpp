@@ -174,6 +174,12 @@ PYBIND11_MODULE(cosmolike_roman_fourier_FASTPT_interface, m)
        py::return_value_policy::move
     );
 
+  m.def("set_IA_PS",
+      &cosmolike_interface::set_IA_PS,
+      "Set IA_PS if FASTPT is called",
+      py::arg("IA_PS").none(false)
+    );
+
   m.def("set_baryon_pcs",
     [](arma::Mat<double> eigenvectors) {
       spdlog::debug("\x1b[90m{}\x1b[0m: Begins", "set_baryon_pcs");
