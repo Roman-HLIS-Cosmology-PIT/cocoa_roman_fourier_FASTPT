@@ -177,7 +177,10 @@ PYBIND11_MODULE(cosmolike_roman_fourier_FASTPT_interface, m)
   m.def("set_IA_PS",
       &cosmolike_interface::set_IA_PS,
       "Set IA_PS if FASTPT is called",
-      py::arg("IA_PS").none(false)
+      py::arg("IA_PS").none(false),
+      py::arg("IA_k_min").none(false),
+      py::arg("IA_k_max").none(false),
+      py::arg("N").none(false)
     );
 
   m.def("set_baryon_pcs",

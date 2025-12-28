@@ -412,6 +412,7 @@ theory:
   fastpt:
     path: ./external_modules/code/FAST-PT
     extra_args:
+      IA_model: 0
       d:0
 
 sampler:

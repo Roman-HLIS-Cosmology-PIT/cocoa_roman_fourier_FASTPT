@@ -249,7 +249,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       if int(self.IA_code)==1:
         self.IA_PS = self.provider.get_IA_PS()
         print(self.IA_PS)
-        ci.set_IA_PS(self.IA_PS.flatten(order='C'))
+        ci.set_IA_PS(self.IA_PS[1:,:].flatten(order='C'),IA_k_min=self.IA_PS[0,0], IA_k_max=self.IA_PS[0,-1], N= len(self.IA_PS[0]))
       ci.set_cosmology(
         omegam=self.provider.get_param("omegam"),
         H0=self.provider.get_param("H0"),
