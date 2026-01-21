@@ -2,9 +2,7 @@
 from __future__ import absolute_import, division, print_function
 import os
 import numpy as np
-import scipy
-from scipy.interpolate import UnivariateSpline
-import sys
+from scipy.interpolate import interp1d
 import time
 
 # Local
@@ -13,7 +11,6 @@ from cobaya.log import LoggedError
 from getdist import IniFile
 
 import euclidemu2 as ee2
-import math
 
 import cosmolike_roman_fourier_FASTPT_interface as ci
 
@@ -39,7 +36,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
     # ------------------------------------------------------------------------   
     tmp=int(1000 + 250*self.accuracyboost)
     self.z_interp_1D = np.concatenate((np.linspace(0.0,3.0,max(100,int(0.80*tmp))),
-                                       np.linspace(3.0,50.1,max(100,int(0.40*tmp))),
+                                       np.linspace(3.01,50.1,max(100,int(0.40*tmp))),
                                        np.linspace(1070,1100,max(50,int(0.10*tmp)))),axis=0)
     self.len_z_interp_1D = len(self.z_interp_1D)
 
@@ -47,7 +44,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
     self.z_interp_2D = np.concatenate((np.linspace(0,3.0,max(50,int(0.75*tmp))), 
                                        np.linspace(3.01,50.1,max(30,int(0.25*tmp)))),axis=0)
     self.len_z_interp_2D = len(self.z_interp_2D)
-    
+    # in 1/Mpc
     self.log10k_interp_2D = np.linspace(-4.99,2.0,int(1250+250*self.accuracyboost))
     self.len_log10k_interp_2D = len(self.log10k_interp_2D)
     # ------------------------------------------------------------------------
@@ -62,7 +59,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
     else:
       ci.set_log_level_info()
 
-    # JX: use what emulator?
+    ### 2PCF-emulator-based CoCoA initialization
     if self.use_emulator:
       ci.init_redshift_distributions_from_files(
           lens_multihisto_file=self.lens_file,
@@ -74,7 +71,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       
       ci.init_accuracy_boost(accuracy_boost=0.35, 
                              integration_accuracy=-1) # seems enough to compute PM
-    # traditional CoCoA initialization
+    ### traditional CoCoA initialization
     else:
       ci.init_accuracy_boost(accuracy_boost=self.accuracyboost, 
                              integration_accuracy=int(self.integration_accuracy))
@@ -100,18 +97,24 @@ class _cosmolike_prototype_base(DataSetLikelihood):
 
       ci.init_data_fourier(self.cov_file, self.mask_file, self.data_vector_file)
 
-      # JX: might need to change init_IA?
-      if (int(self.IA_model)==0) or (int(self.IA_code)==0):
-        ci.init_IA(ia_model = int(self.IA_model), 
-                 ia_redshift_evolution = int(self.IA_redshift_evolution))
-     
+      # Intrinsic alignment initialization (CosmoLike)
+      if (self.IA_model==0) and (self.IA_code==1):
+        self.log.warning("Fall back to C FASTPT under NLA (IA_model = 0)!")
+        self.IA_code = 0
+      ci.init_IA(ia_model = int(self.IA_model), 
+                ia_redshift_evolution = int(self.IA_redshift_evolution),
+                ia_code = int(self.IA_code))
+      
+      # Galaxy bias initialization
       if self.probe != "xi":
         # (b1, b2, bs2, b3, bmag). 0 = one amplitude per bin
         ci.init_bias(bias_model=self.bias_model)
       
+      # Nonlinear matter power spectrum emulator initialization
       if self.non_linear_emul == 1:
         self.emulator = ee2.PyEuclidEmulator()
       
+      # Baryonic effect contamination initialization
       if self.create_baryon_pca:
         self.use_baryon_pca = False
         self.allsims = ini.relativeFileName('all_sims_hdf5_file')
@@ -119,8 +122,10 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         if self.add_baryons_on_dv:
           sim = self.which_bsims_add_on_dv
           self.allsims = ini.relativeFileName('all_sims_hdf5_file')
-          ci.init_baryons_contamination(sim = sim, allsims=allsims)
+          ci.init_baryons_contamination(sim = sim, allsims=self.allsims)
 
+    # ------------------------------------------------------------------------
+    # Baryon PCA setup
     if self.use_baryon_pca:
       baryon_pca_file = ini.relativeFileName('baryon_pca_file')
       self.npcs = 4
@@ -130,7 +135,12 @@ class _cosmolike_prototype_base(DataSetLikelihood):
     else:
       self.log.info('use_baryon_pca = False')
 
+  # ------------------------------------------------------------------------
+  # ------------------------------------------------------------------------
+  # ------------------------------------------------------------------------
+
   def get_requirements(self):
+    ### 2PCF-emulator requirements
     if self.use_emulator:
       if self.probe == "xi":
         return {
@@ -168,9 +178,10 @@ class _cosmolike_prototype_base(DataSetLikelihood):
           'comoving_radial_distance': {
             "z": self.z_interp_1D 
           } # in Mpc
-        }     
+        }   
+    ### Traditional CoCoA requirements  
     else:
-      return {
+      _requirements_ =  {
         "As": None,
         "H0": None,
         "omegam": None,
@@ -189,9 +200,12 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         "Cl": { # DONT REMOVE THIS - SOME WEIRD BEHAVIOR IN CAMB WITHOUT WANTS_CL
           'tt': 0
         },
-        # JX: get requirements of what for FAST-PT wrapper? 
-        "IA_PS": None,
       }
+      # Also need Python FAST-PT if IA_code == 1
+      if (self.IA_code == 1):
+        _requirements_["IA_PS"] = None
+        _requirements_["bias_PS"] = None
+      return _requirements_
 
   # ------------------------------------------------------------------------
   # ------------------------------------------------------------------------
@@ -200,17 +214,14 @@ class _cosmolike_prototype_base(DataSetLikelihood):
   def set_cosmo_related(self):
     h = self.provider.get_param("H0")/100.0
     if not self.use_emulator:
+      # Linear P(k)
       PKL  = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"), 
                                                nonlinear=False, 
                                                extrap_kmax=2.5e2*self.accuracyboost)
       lnPL = PKL.logP(self.z_interp_2D,
                       np.power(10.0,self.log10k_interp_2D)).flatten(order='F')+np.log(h**3)
-      
-      self.log.info(f'Calling FAST-PT to get IA-related power spectrum')
-      self.IA = self.provider.get_IA_PS()
-      self.log.info(f'{len(self.IA)} IA perturbation terms returned')
-      self.log.info(f'Each IA term has shape of {self.IA[0].shape}')
 
+      # Nonlinear P(k) from EuclidEmulator2
       if self.non_linear_emul == 1:
         params = {
           'Omm'  : self.provider.get_param("omegam"),
@@ -237,19 +248,19 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         lnPNL=(lnPL.reshape(self.len_z_interp_2D, 
                             self.len_log10k_interp_2D, 
                             order='F') + lnbt).ravel(order='F')
+      # Nonlinear P(k) from CAMB
       elif self.non_linear_emul == 2:
         lnPNL = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"),
           nonlinear=True, extrap_kmax =2.5e2*self.accuracyboost).logP(self.z_interp_2D,
           np.power(10.0,self.log10k_interp_2D)).flatten(order='F')+np.log(h**3)   
       else:
-        raise LoggedError(self.log, "non_linear_emul = %d is an invalid option", non_linear_emul)
+        raise LoggedError(self.log, "non_linear_emul = %d is an invalid option", self.non_linear_emul)
 
+      # Linear growth factor
       G_growth = np.sqrt(PKL.P(self.z_interp_2D,0.0005)/PKL.P(0,0.0005))*(1+self.z_interp_2D)
       G_growth /= G_growth[-1]
-      if int(self.IA_code)==1:
-        self.IA_PS = self.provider.get_IA_PS()
-        print(self.IA_PS)
-        ci.set_IA_PS(self.IA_PS[1:,:].flatten(order='C'),IA_k_min=self.IA_PS[0,0], IA_k_max=self.IA_PS[0,-1], N= len(self.IA_PS[0]))
+
+      # Cosmological parameters, distances, P(k), and growth factor
       ci.set_cosmology(
         omegam=self.provider.get_param("omegam"),
         H0=self.provider.get_param("H0"),
@@ -260,7 +271,22 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         G=G_growth,
         z_1D=self.z_interp_1D,
         chi=self.provider.get_comoving_radial_distance(self.z_interp_1D)*h # convert to Mpc/h
-      )
+      ) 
+
+      # IA power spectra from FAST-PT 
+      # This need to be called after `set_cosmology` becase `set_cosmology`` will reset 
+      # the random state cosmology.random
+      if int(self.IA_code)==1:
+        #self.log.info(f'Calling FAST-PT to get IA-related power spectrum')
+        FPTIA = self.provider.get_IA_PS()
+        FPTbias = self.provider.get_bias_PS()
+        FPT_kmin, FPT_kmax = FPTIA[-2,0], FPTIA[-2,-1] # dimensionless
+        FPT_Ntab = len(FPTIA[0])
+        #print(FPTIA, FPTbias)
+        #self.log.info(f'{len(FPTIA)} FPTIA and {len(FPTbias)} FPTbias perturbation terms returned')
+        #self.log.info(f'Each IA term has shape of {FPTIA[0].shape}')
+        ci.set_IA_PS(FPTIA.flatten(order='C'), FPT_kmin, FPT_kmax, FPT_Ntab)
+        ci.set_bias_PS(FPTbias.flatten(order='C'), FPT_kmin, FPT_kmax, FPT_Ntab)
     else:
       ci.set_distances(
         z=self.z_interp_1D,

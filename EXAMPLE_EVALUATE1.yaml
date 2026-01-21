@@ -12,14 +12,17 @@ likelihood:
     # 1 EE2, 2 Halofit
     non_linear_emul: 2
     # 0 NLA, 1 TATT
-    IA_model: 0
-    IA_code: 1
+    IA_model: 1
     # 0 NO IA, 1 IA_NLA_LF, 2 IA_REDSHIFT_BINNING, 3 IA_REDSHIFT_EVOLUTION
     IA_redshift_evolution: 3
+    # 0 C FASTPT, 1 Python PAST-PT
+    IA_code: 1
     debug: false
     create_baryon_pca: false
     baryon_pca_select_sims: "antilles-2-99/antilles-101-378/antilles-380-400"
     filename_baryon_pca: "./projects/lsst_y1/chains/pca.txt"
+    print_datavector: false
+    print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_theory_1.modelvector"
 params:
   As_1e9:
     prior:
@@ -362,37 +365,34 @@ params:
       scale: 0.5
     proposal: 0.5
   roman_A2_1:
-    value: 0.0
-    #prior:
-    #  min: -5
-    #  max:  5
-    #ref:
-    #  dist: norm
-    #  loc: -1.36
-    #  scale: 0.5
-    #proposal: 0.5
+    prior:
+     min: -5
+     max:  5
+    ref:
+     dist: norm
+     loc: -1.36
+     scale: 0.5
+    proposal: 0.5
     latex: A_\mathrm{2-IA,Roman}^1
   roman_A2_2:
-    value: 0.0
-    #prior:
-    #  min: -5
-    #  max:  5
-    #ref:
-    #  dist: norm
-    #  loc: -2.5
-    #  scale: 0.5
-    #proposal: 0.5
+    prior:
+     min: -5
+     max:  5
+    ref:
+     dist: norm
+     loc: -2.5
+     scale: 0.5
+    proposal: 0.5
     latex: A_\mathrm{2-IA,Roman}^2
   roman_BTA_1:
-    value: 0.0
-    #prior:
-    #  min: 0
-    #  max: 2
-    #ref:
-    #  dist: norm
-    #  loc: 1
-    #  scale: 0.15
-    #proposal: 0.1
+    prior:
+     min: 0
+     max: 2
+    ref:
+     dist: norm
+     loc: 1
+     scale: 0.15
+    proposal: 0.1
     latex: A_\mathrm{BTA-IA,Roman}^1
 
 theory:
@@ -412,8 +412,10 @@ theory:
   fastpt:
     path: ./external_modules/code/FAST-PT
     extra_args:
-      IA_model: 0
-      d:0
+      # args here can be accessed in fastpt.py via self.extra_args
+      accuracyboost: 1
+      kmax_boltzmann: 7.5
+      extrap_kmax: 250.0
 
 sampler:
   evaluate:
@@ -443,7 +445,10 @@ sampler:
       roman_M8: 0.0
       roman_A1_1: 0.6
       roman_A1_2: -1.5
+      roman_A2_1: -1.36
+      roman_A2_2: -2.5
+      roman_BTA_1: 1.0
       w0pwa: -1.0
       w: -1.0
 
-output: ./projects/roman_fourier_FASTPT/chains/EXAMPLE_EVALUATE2
+output: ./projects/roman_fourier_FASTPT/chains/EXAMPLE_EVALUATE1

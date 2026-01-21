@@ -11,8 +11,9 @@ debug: False
 #                        2 = IA_REDSHIFT_BINNING, 
 #                        3 = IA_REDSHIFT_EVOLUTION
 IA_redshift_evolution: 3
-# IA_MODEL: 0 = NLA, 1 = TATT
+# IA_MODEL: 0 = NLA, 1 = TATT, 2 = EFT
 IA_model: 0 
+# IA_code: 0 = C FASTPT, 1 = Python PAST-PT
 IA_code: 1
 external_nz_modeling: 0
 use_emulator: False
