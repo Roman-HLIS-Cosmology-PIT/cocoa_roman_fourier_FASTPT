@@ -6,8 +6,8 @@ likelihood:
   roman_fourier_FASTPT.cosmic_shear:
     path: ./external_modules/data/roman_fourier_FASTPT
     data_file: roman_example.dataset # this assumes lens = source
-    accuracyboost: 1.0
-    integration_accuracy: 0
+    accuracyboost: 5.0
+    integration_accuracy: 2
     kmax_boltzmann: 10.0
     # 1 EE2, 2 Halofit
     non_linear_emul: 2
@@ -17,12 +17,13 @@ likelihood:
     IA_redshift_evolution: 3
     # 0 C FASTPT, 1 Python PAST-PT
     IA_code: 1
+    #ggl_exclude: [[7,0],[7,1]]
     debug: false
     create_baryon_pca: false
     baryon_pca_select_sims: "antilles-2-99/antilles-101-378/antilles-380-400"
     filename_baryon_pca: "./projects/lsst_y1/chains/pca.txt"
-    print_datavector: false
-    print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_theory_1.modelvector"
+    print_datavector: true
+    print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_cosmic_shear_pyfastpt.modelvector"
 params:
   As_1e9:
     prior:
@@ -413,8 +414,8 @@ theory:
     path: ./external_modules/code/FAST-PT
     extra_args:
       # args here can be accessed in fastpt.py via self.extra_args
-      accuracyboost: 1
-      kmax_boltzmann: 7.5
+      accuracyboost: 5
+      kmax_boltzmann: 10
       extrap_kmax: 250.0
 
 sampler:

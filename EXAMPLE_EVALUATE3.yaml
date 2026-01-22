@@ -6,23 +6,24 @@ likelihood:
   roman_fourier_FASTPT.combo_3x2pt:
     path: ./external_modules/data/roman_fourier_FASTPT
     data_file: roman_example.dataset # this assumes lens = source
-    accuracyboost: 1.0
-    integration_accuracy: 0
+    accuracyboost: 5.0
+    integration_accuracy: 2
     kmax_boltzmann: 10.0
     # 1 EE2, 2 Halofit
     non_linear_emul: 2
     # 0 NLA, 1 TATT
-    IA_model: 0
+    IA_model: 1
     # 0 NO IA, 1 IA_NLA_LF, 2 IA_REDSHIFT_BINNING, 3 IA_REDSHIFT_EVOLUTION
     IA_redshift_evolution: 3
     # 0 C FASTPT, 1 Python PAST-PT
     IA_code: 1
+    #ggl_exclude: [[7,0],[7,1]]
     debug: false
     create_baryon_pca: false
     baryon_pca_select_sims: "antilles-2-99/antilles-101-378/antilles-380-400"
     filename_baryon_pca: "./projects/lsst_y1/chains/pca.txt"
-    print_datavector: false
-    print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_theory_2.modelvector"
+    print_datavector: true
+    print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_3x2pt_pyfastpt.modelvector"
 params:
   As_1e9:
     prior:
@@ -365,37 +366,34 @@ params:
       scale: 0.5
     proposal: 0.5
   roman_A2_1:
-    value: 0.0
-    #prior:
-    #  min: -5
-    #  max:  5
-    #ref:
-    #  dist: norm
-    #  loc: -1.36
-    #  scale: 0.5
-    #proposal: 0.5
+    prior:
+      min: -5
+      max:  5
+    ref:
+      dist: norm
+      loc: -1.36
+      scale: 0.5
+    proposal: 0.5
     latex: A_\mathrm{2-IA,Roman}^1
   roman_A2_2:
-    value: 0.0
-    #prior:
-    #  min: -5
-    #  max:  5
-    #ref:
-    #  dist: norm
-    #  loc: -2.5
-    #  scale: 0.5
-    #proposal: 0.5
+    prior:
+      min: -5
+      max:  5
+    ref:
+      dist: norm
+      loc: -2.5
+      scale: 0.5
+    proposal: 0.5
     latex: A_\mathrm{2-IA,Roman}^2
   roman_BTA_1:
-    value: 0.0
-    #prior:
-    #  min: 0
-    #  max: 2
-    #ref:
-    #  dist: norm
-    #  loc: 1
-    #  scale: 0.15
-    #proposal: 0.1
+    prior:
+      min: 0
+      max: 2
+    ref:
+      dist: norm
+      loc: 1
+      scale: 0.15
+    proposal: 0.1
     latex: A_\mathrm{BTA-IA,Roman}^1
   # ------------------------------------------------------------------------
   # ------------------------------------------------------------------------
@@ -405,25 +403,25 @@ params:
     latex: \Delta z_\mathrm{l,Roman}^1
   roman_DZ_L2:
     value: 'lambda roman_DZ_S2: roman_DZ_S2'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^2
   roman_DZ_L3:
     value: 'lambda roman_DZ_S3: roman_DZ_S3'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^3
   roman_DZ_L4:
     value: 'lambda roman_DZ_S4: roman_DZ_S4'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^4
   roman_DZ_L5:
     value: 'lambda roman_DZ_S5: roman_DZ_S5'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^5
   roman_DZ_L6:
     value: 'lambda roman_DZ_S6: roman_DZ_S6'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^6
   roman_DZ_L7:
     value: 'lambda roman_DZ_S7: roman_DZ_S7'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^7
   roman_DZ_L8:
     value: 'lambda roman_DZ_S8: roman_DZ_S8'
-    latex: \Delta z_\mathrm{l,Roman}^1
+    latex: \Delta z_\mathrm{l,Roman}^8
   # ------------------------------------------------------------------------
   # ------------------------------------------------------------------------
   # Bin bias parameters
@@ -507,6 +505,86 @@ params:
       scale: 0.1
     proposal: 0.1
     latex: b_\mathrm{1-Roman}^8
+  roman_B2_1:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^1
+  roman_B2_2:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^2
+  roman_B2_3:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^3
+  roman_B2_4:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^4
+  roman_B2_5:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^5
+  roman_B2_6:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^6
+  roman_B2_7:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^7
+  roman_B2_8:
+    prior:
+      min: -2.0
+      max: 2.0
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.5
+    proposal: 0.5
+    latex: b_\mathrm{2-roman}^8
 
 theory:
   camb:
@@ -526,8 +604,8 @@ theory:
     path: ./external_modules/code/FAST-PT
     extra_args:
       # args here can be accessed in fastpt.py via self.extra_args
-      accuracyboost: 1
-      kmax_boltzmann: 7.5
+      accuracyboost: 5
+      kmax_boltzmann: 10
       extrap_kmax: 250.0
 
 sampler:
@@ -548,6 +626,22 @@ sampler:
       roman_B1_6: 1.9
       roman_B1_7: 2.0
       roman_B1_8: 2.1
+      roman_B2_1: 0.01
+      roman_B2_2: 0.01
+      roman_B2_3: 0.01
+      roman_B2_4: 0.01
+      roman_B2_5: 0.01
+      roman_B2_6: 0.01
+      roman_B2_7: 0.01
+      roman_B2_8: 0.01
+      # roman_B2_1: 0.0
+      # roman_B2_2: 0.0
+      # roman_B2_3: 0.0
+      # roman_B2_4: 0.0
+      # roman_B2_5: 0.0
+      # roman_B2_6: 0.0
+      # roman_B2_7: 0.0
+      # roman_B2_8: 0.0
       roman_DZ_S1: 0.0
       roman_DZ_S2: 0.0
       roman_DZ_S3: 0.0
@@ -564,9 +658,12 @@ sampler:
       roman_M6: 0.0
       roman_M7: 0.0
       roman_M8: 0.0
-      roman_A1_1: 0.6
+      roman_A1_1: -0.6
       roman_A1_2: -1.5
+      roman_A2_1: -1.36
+      roman_A2_2: -2.5
+      roman_BTA_1: 1.0
       w0pwa: -1.0
       w: -1.0
 
-output: ./projects/roman_fourier_FASTPT/chains/EXAMPLE_EVALUATE2
+output: ./projects/roman_fourier_FASTPT/chains/EXAMPLE_EVALUATE3

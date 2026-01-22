@@ -287,6 +287,9 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         #self.log.info(f'Each IA term has shape of {FPTIA[0].shape}')
         ci.set_IA_PS(FPTIA.flatten(order='C'), FPT_kmin, FPT_kmax, FPT_Ntab)
         ci.set_bias_PS(FPTbias.flatten(order='C'), FPT_kmin, FPT_kmax, FPT_Ntab)
+        # for debug
+        np.savetxt("FPT_IA_pyfastpt.txt", FPTIA.T)
+        np.savetxt("FPT_bias_pyfastpt.txt", FPTbias.T)
     else:
       ci.set_distances(
         z=self.z_interp_1D,
