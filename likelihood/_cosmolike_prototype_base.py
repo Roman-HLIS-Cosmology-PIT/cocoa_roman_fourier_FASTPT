@@ -279,14 +279,14 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       if int(self.IA_code)==1:
         #self.log.info(f'Calling FAST-PT to get IA-related power spectrum')
         FPTIA = self.provider.get_IA_PS()
-        FPTbias = self.provider.get_bias_PS()
+        FPTbias, sigma4 = self.provider.get_bias_PS()
         FPT_kmin, FPT_kmax = FPTIA[-2,0], FPTIA[-2,-1] # dimensionless
         FPT_Ntab = len(FPTIA[0])
         #print(FPTIA, FPTbias)
         #self.log.info(f'{len(FPTIA)} FPTIA and {len(FPTbias)} FPTbias perturbation terms returned')
         #self.log.info(f'Each IA term has shape of {FPTIA[0].shape}')
         ci.set_IA_PS(FPTIA.flatten(order='C'), FPT_kmin, FPT_kmax, FPT_Ntab)
-        ci.set_bias_PS(FPTbias.flatten(order='C'), FPT_kmin, FPT_kmax, FPT_Ntab)
+        ci.set_bias_PS(FPTbias.flatten(order='C'), FPT_kmin, FPT_kmax, sigma4, FPT_Ntab)
         # for debug
         np.savetxt("FPT_IA_pyfastpt.txt", FPTIA.T)
         np.savetxt("FPT_bias_pyfastpt.txt", FPTbias.T)
