@@ -1,4 +1,4 @@
-data_file = roman_example.datavector
+data_file = roman_fourier_cosmic_shear_pyfastpt.modelvector
 cov_file = roman_example.cov
 mask_file = roman_example.mask
 nz_lens_file = roman_example.nz

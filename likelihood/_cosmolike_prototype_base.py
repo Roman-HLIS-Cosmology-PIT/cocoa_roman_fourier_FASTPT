@@ -217,7 +217,8 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       # Linear P(k)
       PKL  = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"), 
                                                nonlinear=False, 
-                                               extrap_kmax=2.5e2*self.accuracyboost)
+                                               extrap_kmax=2.5e2*self.accuracyboost,
+                                               extrap_kmin=1e-5)
       lnPL = PKL.logP(self.z_interp_2D,
                       np.power(10.0,self.log10k_interp_2D)).flatten(order='F')+np.log(h**3)
 
@@ -251,7 +252,7 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       # Nonlinear P(k) from CAMB
       elif self.non_linear_emul == 2:
         lnPNL = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"),
-          nonlinear=True, extrap_kmax =2.5e2*self.accuracyboost).logP(self.z_interp_2D,
+          nonlinear=True, extrap_kmax =2.5e2*self.accuracyboost,extrap_kmin=1e-5).logP(self.z_interp_2D,
           np.power(10.0,self.log10k_interp_2D)).flatten(order='F')+np.log(h**3)   
       else:
         raise LoggedError(self.log, "non_linear_emul = %d is an invalid option", self.non_linear_emul)

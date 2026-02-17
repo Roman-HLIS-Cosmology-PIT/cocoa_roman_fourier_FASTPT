@@ -22,7 +22,7 @@ likelihood:
     create_baryon_pca: false
     baryon_pca_select_sims: "antilles-2-99/antilles-101-378/antilles-380-400"
     filename_baryon_pca: "./projects/lsst_y1/chains/pca.txt"
-    print_datavector: true
+    print_datavector: false
     print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_cosmic_shear_cfastpt.modelvector"
 params:
   As_1e9:
