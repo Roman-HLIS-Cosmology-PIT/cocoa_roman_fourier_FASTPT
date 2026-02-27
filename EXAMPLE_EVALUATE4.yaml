@@ -5,10 +5,10 @@ stop_at_error: True
 likelihood:
   roman_fourier_FASTPT.combo_3x2pt:
     path: ./external_modules/data/roman_fourier_FASTPT
-    data_file: roman_example.dataset # this assumes lens = source
-    accuracyboost: 5.0
-    integration_accuracy: 2
-    kmax_boltzmann: 10.0
+    data_file: roman_example_highres_cfastpt.dataset # this assumes lens = source
+    accuracyboost: 4.0
+    integration_accuracy: 0
+    kmax_boltzmann: 2.5
     # 1 EE2, 2 Halofit
     non_linear_emul: 2
     # 0 NLA, 1 TATT
@@ -22,8 +22,24 @@ likelihood:
     create_baryon_pca: false
     baryon_pca_select_sims: "antilles-2-99/antilles-101-378/antilles-380-400"
     filename_baryon_pca: "./projects/lsst_y1/chains/pca.txt"
-    print_datavector: true
+    print_datavector: False
     print_datavector_file: "./projects/roman_fourier_FASTPT/chains/roman_fourier_3x2pt_cfastpt.modelvector"
+
+theory:
+  camb:
+    path: ./external_modules/code/CAMB
+    stop_at_error: False
+    use_renames: True
+    extra_args:
+      halofit_version: takahashi
+      AccuracyBoost: 1.0
+      lens_potential_accuracy: 1.0
+      num_massive_neutrinos: 1
+      nnu: 3.046
+      dark_energy_model: ppf
+      accurate_massive_neutrino_transfers: false
+      k_per_logint: 10
+
 params:
   As_1e9:
     prior:
@@ -586,20 +602,6 @@ params:
       scale: 0.5
     proposal: 0.5
     latex: b_\mathrm{2-roman}^8
-theory:
-  camb:
-    path: ./external_modules/code/CAMB
-    stop_at_error: False
-    use_renames: True
-    extra_args:
-      halofit_version: takahashi
-      AccuracyBoost: 1.0
-      lens_potential_accuracy: 1.0
-      num_massive_neutrinos: 1
-      nnu: 3.046
-      dark_energy_model: ppf
-      accurate_massive_neutrino_transfers: false
-      k_per_logint: 10
 
 sampler:
   evaluate:
